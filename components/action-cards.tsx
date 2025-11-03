@@ -32,7 +32,7 @@ export function ActionCards() {
       textColor: "text-secondary-foreground",
       onClick: () => router.push("/adicionar-produto"),
     },
-    {
+    /*{
       title: "Relatórios",
       description: "Ver relatórios e análises",
       icon: BarChart3,
@@ -40,6 +40,7 @@ export function ActionCards() {
       textColor: "text-muted-foreground",
       onClick: () => router.push("/relatorios"),
     },
+    */
   ]
 
   return (

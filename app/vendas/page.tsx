@@ -14,6 +14,7 @@ import {
   Plus,
   Trash2,
   DollarSign,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -44,6 +45,7 @@ export default function VendasPage() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [itensVenda, setItensVenda] = useState<ItemVenda[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     produtoId: "",
     produto: "",
@@ -130,9 +132,11 @@ export default function VendasPage() {
           title: "Estoque insuficiente",
           description: `O produto ${item.produto} possui apenas ${produto.quantidadeEstoque} unidade(s) disponível(is).`,
         });
-        return; // interrompe o envio
+        return;
       }
     }
+
+    setIsLoading(true);
 
     try {
       const payload = {
@@ -156,6 +160,8 @@ export default function VendasPage() {
         title: "Erro ao finalizar venda",
         description: "Ocorreu um erro ao registrar a venda no servidor.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -355,9 +361,19 @@ export default function VendasPage() {
                     onClick={handleFinalizarVenda}
                     className="w-full h-11"
                     size="lg"
+                    disabled={isLoading}
                   >
-                    <Check className="mr-2 h-5 w-5" />
-                    Finalizar Venda - R$ {totalVenda.toFixed(2)}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-5 w-5" />
+                        Finalizar Venda - R$ {totalVenda.toFixed(2)}
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
