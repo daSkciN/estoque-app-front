@@ -1,42 +1,29 @@
-import { Header } from "@/components/header"
-import { StatsCards } from "@/components/stats-cards"
-import { ActionCards } from "@/components/action-cards"
-import { Package, ShoppingCart, PackagePlus, TrendingUp } from "lucide-react"
+"use client"
+
+import { Header } from "@/components/header";
+import { StatsCards } from "@/components/stats-cards";
+import { ActionCards } from "@/components/action-cards";
+import { Package, ShoppingCart, PackagePlus, TrendingUp, Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function HomePage() {
-  const menuItems = [
-    {
-      title: "Vendas",
-      description: "Registrar nova venda",
-      icon: ShoppingCart,
-      href: "/vendas",
-      color: "bg-chart-1",
-    },
-    {
-      title: "Entrada de Estoque",
-      description: "Adicionar produtos ao estoque",
-      icon: PackagePlus,
-      href: "/entrada-estoque",
-      color: "bg-accent",
-    },
-    {
-      title: "Adicionar Produto",
-      description: "Cadastrar novo produto",
-      icon: Package,
-      href: "/adicionar-produto",
-      color: "bg-chart-3",
-    },
-    {
-      title: "Relatórios",
-      description: "Ver estatísticas e relatórios",
-      icon: TrendingUp,
-      href: "/relatorios",
-      color: "bg-chart-4",
-    },
-  ]
+  const [isLoading, setIsLoading] = useState(true)
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false)
+  }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {isLoading && (
+        <div className="fixed inset-0 z-50 bg-background flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-muted-foreground">Carregando...</p>
+          </div>
+        </div>
+      )}
+
       <Header title="Menu Principal" />
 
       <main className="container px-4 py-8 max-w-6xl mx-auto">
@@ -46,7 +33,7 @@ export default function HomePage() {
         </div>
 
         <div className="mb-8">
-          <StatsCards />
+          <StatsCards onLoadingComplete={handleLoadingComplete} />
         </div>
 
         <ActionCards />

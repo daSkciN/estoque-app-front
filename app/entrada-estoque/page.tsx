@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { PackagePlus, Check } from "lucide-react";
+import { PackagePlus, Check, Loader2 } from "lucide-react";
 import { toast, useToast } from "@/hooks/use-toast";
 import { api } from "@/services/api";
 import {
@@ -34,6 +34,7 @@ export default function EntradaEstoquePage() {
   >([]);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const produtosFiltrados = useMemo(
     () =>
@@ -60,32 +61,36 @@ export default function EntradaEstoquePage() {
       });
       return;
     }
+
+    setIsLoading(true);
+
     try {
-    const payload = {
-      idProduto: Number(formData.produto),
-      quantidade: Number(formData.quantidade),
-    };
+      const payload = {
+        idProduto: Number(formData.produto),
+        quantidade: Number(formData.quantidade),
+      };
 
-    const response = await api.post("/entradaEstoque", payload);
-    console.log("Entrada registrada:", response.data);
+      const response = await api.post("/entradaEstoque", payload);
+      console.log("Entrada registrada:", response.data);
 
-    toast({
-      title: "Entrada registrada ✅",
-      description: `${formData.quantidade} unidades adicionadas ao estoque.`,
-    });
+      toast({
+        title: "Entrada registrada ✅",
+        description: `${formData.quantidade} unidades adicionadas ao estoque.`,
+      });
 
-    setFormData({
-      produto: "",
-      quantidade: "",
-    });
-
-  } catch (error) {
-    console.error(error);
-    toast({
-      title: "Erro ao registrar entrada",
-      description: "Tente novamente mais tarde.",
-    });
-  }
+      setFormData({
+        produto: "",
+        quantidade: "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro ao registrar entrada",
+        description: "Tente novamente mais tarde.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -168,9 +173,23 @@ export default function EntradaEstoquePage() {
               </div>
             </div>
             <div className="pt-4">
-              <Button type="submit" className="w-full h-11" size="lg">
-                <Check className="mr-2 h-5 w-5" />
-                Confirmar Entrada
+              <Button
+                type="submit"
+                className="w-full h-11"
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <Check className="mr-2 h-5 w-5" />
+                    Confirmar Entrada
+                  </>
+                )}
               </Button>
             </div>
           </form>

@@ -1,59 +1,73 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Header } from "@/components/header"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Package, Check } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { api } from "@/services/api"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Header } from "@/components/header";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Package, Check, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { api } from "@/services/api";
 
 interface Categoria {
-  idCategoria: number
-  nome: string
+  idCategoria: number;
+  nome: string;
 }
 
 export default function AdicionarProdutoPage() {
-  const { toast } = useToast()
-  const [categorias, setCategorias] = useState<Categoria[]>([])
+  const { toast } = useToast();
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     nome: "",
     nomeCategoria: "",
     precoCusto: "",
     precoVenda: "",
-  })
+  });
 
   useEffect(() => {
     const fetchCategorias = async () => {
       try {
-        const response = await api.get("/categoria")
-        setCategorias(response.data)
+        const response = await api.get("/categoria");
+        setCategorias(response.data);
       } catch (error) {
-        console.error("Erro ao buscar categorias:", error)
+        console.error("Erro ao buscar categorias:", error);
         toast({
           title: "Erro ao carregar categorias",
           description: "Não foi possível carregar a lista de categorias.",
-        })
+        });
       }
-    }
+    };
 
-    fetchCategorias()
-  }, [toast])
+    fetchCategorias();
+  }, [toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!formData.nome || !formData.nomeCategoria || !formData.precoCusto || !formData.precoVenda) {
+    if (
+      !formData.nome ||
+      !formData.nomeCategoria ||
+      !formData.precoCusto ||
+      !formData.precoVenda
+    ) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos antes de cadastrar.",
-      })
-      return
+      });
+      return;
     }
+
+    setIsLoading(true);
 
     try {
       const payload = {
@@ -61,30 +75,32 @@ export default function AdicionarProdutoPage() {
         nomeCategoria: formData.nomeCategoria,
         precoCusto: Number.parseFloat(formData.precoCusto),
         precoVenda: Number.parseFloat(formData.precoVenda),
-      }
+      };
 
-      const response = await api.post("/produto", payload)
-      console.log("Produto cadastrado:", response.data)
+      const response = await api.post("/produto", payload);
+      console.log("Produto cadastrado:", response.data);
 
       toast({
         title: "Produto cadastrado ✅",
         description: `${formData.nome} foi adicionado ao sistema.`,
-      })
+      });
 
       setFormData({
         nome: "",
         nomeCategoria: "",
         precoCusto: "",
         precoVenda: "",
-      })
+      });
     } catch (error) {
-      console.error(error)
+      console.error(error);
       toast({
         title: "Erro ao cadastrar produto",
         description: "Tente novamente mais tarde.",
-      })
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,8 +113,12 @@ export default function AdicionarProdutoPage() {
               <Package className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-foreground">Cadastrar Produto</h2>
-              <p className="text-sm text-muted-foreground">Adicione um novo produto ao sistema</p>
+              <h2 className="text-xl font-bold text-foreground">
+                Cadastrar Produto
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Adicione um novo produto ao sistema
+              </p>
             </div>
           </div>
 
@@ -110,7 +130,9 @@ export default function AdicionarProdutoPage() {
                 type="text"
                 placeholder="Ex: Notebook Dell Inspiron"
                 value={formData.nome}
-                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, nome: e.target.value })
+                }
                 className="h-11"
                 required
               />
@@ -120,7 +142,9 @@ export default function AdicionarProdutoPage() {
               <Label htmlFor="categoria">Categoria *</Label>
               <Select
                 value={formData.nomeCategoria}
-                onValueChange={(value) => setFormData({ ...formData, nomeCategoria: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, nomeCategoria: value })
+                }
               >
                 <SelectTrigger className="h-11 w-full">
                   <SelectValue placeholder="Selecione uma categoria" />
@@ -132,7 +156,10 @@ export default function AdicionarProdutoPage() {
                     </SelectItem>
                   ) : (
                     categorias.map((categoria) => (
-                      <SelectItem key={categoria.idCategoria} value={categoria.nome}>
+                      <SelectItem
+                        key={categoria.idCategoria}
+                        value={categoria.nome}
+                      >
                         {categoria.nome}
                       </SelectItem>
                     ))
@@ -151,7 +178,9 @@ export default function AdicionarProdutoPage() {
                   min="0"
                   placeholder="0,00"
                   value={formData.precoCusto}
-                  onChange={(e) => setFormData({ ...formData, precoCusto: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, precoCusto: e.target.value })
+                  }
                   className="h-11"
                   required
                 />
@@ -166,7 +195,9 @@ export default function AdicionarProdutoPage() {
                   min="0"
                   placeholder="0,00"
                   value={formData.precoVenda}
-                  onChange={(e) => setFormData({ ...formData, precoVenda: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, precoVenda: e.target.value })
+                  }
                   className="h-11"
                   required
                 />
@@ -174,9 +205,23 @@ export default function AdicionarProdutoPage() {
             </div>
 
             <div className="pt-4">
-              <Button type="submit" className="w-full h-11" size="lg">
-                <Check className="mr-2 h-5 w-5" />
-                Cadastrar Produto
+              <Button
+                type="submit"
+                className="w-full h-11"
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <Check className="mr-2 h-5 w-5" />
+                    Cadastrar Produto
+                  </>
+                )}
               </Button>
             </div>
           </form>
@@ -184,11 +229,11 @@ export default function AdicionarProdutoPage() {
 
         <div className="mt-6 rounded-lg bg-muted/50 p-4">
           <p className="text-sm text-muted-foreground">
-            <strong>Dica:</strong> Certifique-se de que o preço de venda seja maior que o preço de custo para garantir
-            margem de lucro.
+            <strong>Dica:</strong> Certifique-se de que o preço de venda seja
+            maior que o preço de custo para garantir margem de lucro.
           </p>
         </div>
       </main>
     </div>
-  )
+  );
 }
