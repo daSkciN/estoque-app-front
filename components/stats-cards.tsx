@@ -13,6 +13,7 @@ interface StatsCardsProps {
 export function StatsCards({ onLoadingComplete }: StatsCardsProps) {
   const [totalProdutos, setTotalProdutos] = useState<number | null>(null);
   const [totalVendas, setTotalVendas] = useState<number | null>(null);
+  const [totalEstoqueBaixo, setTotalEstoqueBaixo] = useState<number | null>(null);
   const [isLoadingProdutos, setIsLoadingProdutos] = useState(true);
   const [isLoadingVendas, setIsLoadingVendas] = useState(true);
   const hasCalledCallback = useRef(false);
@@ -54,6 +55,19 @@ export function StatsCards({ onLoadingComplete }: StatsCardsProps) {
   }, []);
 
   useEffect(() => {
+    api
+      .get("/produto/estoque-baixo/quantidade")
+      .then((res) => {
+        setTotalEstoqueBaixo(res.data);
+      })
+      .catch(() => {
+        toast({
+          title: "Erro ao carregar produtos com estoque baixo",
+          description: "Não foi possível obter o total de produtos com estoque baixo.",
+        });
+      })
+  }, []);
+  useEffect(() => {
     if (
       !isLoadingProdutos &&
       !isLoadingVendas &&
@@ -80,9 +94,9 @@ export function StatsCards({ onLoadingComplete }: StatsCardsProps) {
     },
     {
       label: "Estoque Baixo",
-      value: "...",
+      value: totalEstoqueBaixo !== null ? totalEstoqueBaixo.toString() : "...",
       icon: AlertCircle,
-      trend: "-2",
+      trend: "",
       trendUp: false,
     },
   ];
